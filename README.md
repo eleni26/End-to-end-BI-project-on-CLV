@@ -4,6 +4,28 @@ An end-to-end Business Intelligence project built on **AdventureWorks2019**, del
 
 ---
 
+## 🎯 Business Question
+
+Which regions keep customers coming back, and where is customer value concentrated? This dashboard gives sales leadership a one-page view of lifetime value, order size and retention by territory, so they can decide where to focus retention efforts.
+
+---
+
+## 🔍 Key Findings
+
+- **North America holds just over half of active customers** (~10K, 51.7%), followed by Europe (29.3%) and Pacific (19.0%).
+- **Only 39% of customers come back.** 7,470 of 19,119 customers placed a second order; the rest bought once.
+- **The biggest markets have the weakest loyalty.** Northwest (23%) and Southwest (25%), together about 8,000 customers, have the lowest repeat-purchase rates. Australia leads the large markets at 72%.
+- **Europe trails North America on repeat business.** France (27%) and Germany (29%) sit well below the United Kingdom (46%) and Canada (49%).
+- **Average unit price peaks in January (~$550)**, bottoms out in June (~$400), and recovers through Q4.
+
+## 💡 Recommendations
+
+- Focus retention efforts on the US West: Northwest and Southwest hold the most customers and lose the most of them after one order.
+- Study what Australia does differently (product mix, order timing) and test it in the weakest territories.
+- Before planning promotions, check whether the mid-year price dip comes from discounting or from a shift toward cheaper categories.
+
+---
+
 ## 📊 Dashboard Preview
 
 ![CLV Dashboard](CLV%20dashboard.png)
@@ -41,7 +63,31 @@ A star schema data mart is built via a single SQL Server stored procedure (`Proc
 | Customer Lifetime Value (CLV) | 5.75 K |
 | Active Customers | 19 K |
 | Average Order Value (AOV) | 3.49 K |
-| Retention Rate | 86.83 % |
+| Retention Rate (as shown on dashboard) | 86.83 % ⚠️ see Known issue |
+| Repeat Purchase Rate (corrected) | 39.07 % |
+
+### Metric definitions
+
+| Metric | Definition |
+|--------|------------|
+| Total Revenue | `SUM(LineTotal)` across all order lines |
+| CLV | Total revenue ÷ distinct customers (19,119) |
+| AOV | Total revenue ÷ distinct orders (31,465) |
+| Retention Rate (dashboard) | Share of customers with more than one order *line* |
+| Repeat Purchase Rate | Share of customers with more than one distinct order |
+
+### Data validation
+
+All KPIs were reconciled against the AdventureWorks source tables (`Sales.SalesOrderHeader`, `Sales.SalesOrderDetail`, `Sales.Customer`): revenue, order count, customer count and the largest order line ($27,893.62) match the source exactly.
+
+### ⚠️ Known issue
+
+The dashboard's Retention Rate (86.83%) counts a customer as retained if they bought more than one item, even within a single order. During a post-build audit against the source tables, I found that the true share of customers who placed a second order is **39.07%** (7,470 of 19,119). The Key Findings above use the corrected figure. The Power BI measure is being updated to count distinct orders instead of order lines.
+
+### Limitations
+
+- CLV is a simple historical average. It includes large reseller (store) orders alongside individual online buyers, so it overstates the value of a typical individual customer.
+- Central, Northeast and Southeast each have fewer than 100 customers, so their repeat rates (84–87%) are not reliable for comparison.
 
 ---
 
