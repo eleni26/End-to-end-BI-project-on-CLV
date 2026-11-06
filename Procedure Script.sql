@@ -1,7 +1,7 @@
 USE [AdventureWorks2019];
 GO
 
-CREATE OR ALTER PROCEDURE dbo.sp_Build_Loyalty_Data_Mart
+CREATE OR ALTER PROCEDURE clv
 AS
 BEGIN
     SET NOCOUNT ON;
