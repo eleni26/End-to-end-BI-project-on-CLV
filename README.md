@@ -2,6 +2,8 @@
 
 An end-to-end Business Intelligence project built on **AdventureWorks2019**, delivering a Power BI executive dashboard that surfaces customer loyalty and lifetime value KPIs across regions and product categories.
 
+**[▶ Open the live interactive dashboard](https://app.powerbi.com/view?r=eyJrIjoiYThmYWY3NjQtNjRhMi00YmVmLWIxNzAtODY1MTk4MWExOTYwIiwidCI6ImY1MmYyMTgzLTlmNjctNGFkMi1iNjU2LTZmNzU0ZmUxOTZjYiIsImMiOjZ9)**: try the year and category slicers.
+
 ---
 
 ## 🎯 Business Question
@@ -63,8 +65,7 @@ A star schema data mart is built via a single SQL Server stored procedure (`Proc
 | Customer Lifetime Value (CLV) | 5.75 K |
 | Active Customers | 19 K |
 | Average Order Value (AOV) | 3.49 K |
-| Retention Rate (as shown on dashboard) | 86.83 % ⚠️ see Known issue |
-| Repeat Purchase Rate (corrected) | 39.07 % |
+| Retention Rate | 39.07 % |
 
 ### Metric definitions
 
@@ -73,16 +74,15 @@ A star schema data mart is built via a single SQL Server stored procedure (`Proc
 | Total Revenue | `SUM(LineTotal)` across all order lines |
 | CLV | Total revenue ÷ distinct customers (19,119) |
 | AOV | Total revenue ÷ distinct orders (31,465) |
-| Retention Rate (dashboard) | Share of customers with more than one order *line* |
-| Repeat Purchase Rate | Share of customers with more than one distinct order |
+| Retention Rate | Share of customers with more than one distinct order |
 
 ### Data validation
 
 All KPIs were reconciled against the AdventureWorks source tables (`Sales.SalesOrderHeader`, `Sales.SalesOrderDetail`, `Sales.Customer`): revenue, order count, customer count and the largest order line ($27,893.62) match the source exactly.
 
-### ⚠️ Known issue
+### Fixed after audit
 
-The dashboard's Retention Rate (86.83%) counts a customer as retained if they bought more than one item, even within a single order. During a post-build audit against the source tables, I found that the true share of customers who placed a second order is **39.07%** (7,470 of 19,119). The Key Findings above use the corrected figure. The Power BI measure is being updated to count distinct orders instead of order lines.
+The first version of the Retention Rate measure showed 86.83%, because it counted a customer as retained if they bought more than one item, even within a single order. An audit against the source tables showed the true share of customers who placed a second order is **39.07%** (7,470 of 19,119). The measure now counts distinct orders, and the dashboard shows the corrected figure.
 
 ### Limitations
 
@@ -94,34 +94,4 @@ The dashboard's Retention Rate (86.83%) counts a customer as retained if they bo
 ## 🚀 Setup
 
 ### Prerequisites
-- SQL Server 2019+ with **AdventureWorks2019** restored
-- Power BI Desktop
-
-### 1 — Build the data mart
-
-```sql
-USE [AdventureWorks2019];
-GO
-EXEC dbo.sp_Build_Loyalty_Data_Mart;
-GO
-```
-
-The procedure drops and recreates all objects — safe to re-run at any time.
-
-### 2 — Connect Power BI
-
-1. **Get Data → SQL Server** → point to your AdventureWorks2019 database
-2. Import the three reporting views:
-   - `v_Fact_Sales_Performance`
-   - `v_Customer_Geography`
-   - `v_Product_Catalog`
-3. In the **Model** view, confirm relationships on `CustomerKey` and `ProductKey`
-4. Add DAX measures for CLV, AOV, Retention Rate, etc.
-
----
-
-## 🛠️ Tech Stack
-
-- **SQL Server 2019** — stored procedure, star schema, views
-- **T-SQL** — data transformation and mart build
-- **Power BI Desktop** — data model, DAX measures, report visuals
+- SQL Server 2019+ with
